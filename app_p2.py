@@ -3,6 +3,7 @@ import streamlit as st
 # @st.cache_resource
 def initial():
     import cv2
+    import joblib
     import numpy as np
     import pandas as pd
     from sklearn import svm
@@ -55,12 +56,9 @@ if img_file_buffer:
                 tab.image(fig.to_image('png'))
         else:
             tab.image(label2rgb(img_features.label))
-    model = svm.SVC()
-    df = pd.read_csv('df_p2.csv', index_col = 0)
-    scaler = MinMaxScaler()
-    scaler.fit(df.iloc[:, :-1].to_numpy())
-    X_train, X_test, y_train, y_test = train_test_split(scaler.transform(df.iloc[:, :-1]), df['target'], test_size = 0.3, random_state = 20)
-    model.fit(X_train, y_train)
+
+    model = joblib.load("model2.pkl")
+    scaler = joblib.load("scaler2.joblib")
     prediction = model.predict(scaler.transform(st.session_state['features'].to_numpy().reshape(1, -1)))
     if prediction[0]:
         st.success('Your Handwriting is quite good. 👌')

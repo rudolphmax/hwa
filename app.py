@@ -1,8 +1,10 @@
 # Loading necessary packages and models
+import pickle
 import streamlit as st
 @st.experimental_singleton
 def initial():
     import cv2
+    import joblib
     import numpy as np
     import pandas as pd
     from sklearn import svm
@@ -42,12 +44,9 @@ if img_file_buffer:
         tab.subheader(feature)
         # size = tab.slider('Adjust Plot Size ', min_value = 100, max_value = 1500, value = 500, step = 50, key = feature.split(' ')[0] + '_plotsize')
         tab.plotly_chart(px.imshow(imgs[i], color_continuous_scale = 'magma' if i != 1 else 'gray', height = size, width = size))
-    model = svm.SVC()
-    df = pd.read_csv('df.csv', index_col = 0)
-    scaler = StandardScaler()
-    scaler.fit(df.iloc[:, :-1].to_numpy())
-    X_train, X_test, y_train, y_test = train_test_split(scaler.transform(df.iloc[:, :-1]), df['target'], test_size = 0.3, random_state = 20)
-    model.fit(X_train, y_train)
+
+    model = joblib.load("model1.pkl")
+    scaler = joblib.load("scaler1.joblib")
     prediction = model.predict(scaler.transform(st.session_state['features'].to_numpy().reshape(1, -1)))
 #     st.write(prediction)
     if prediction[0]:
